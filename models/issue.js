@@ -28,14 +28,16 @@ const issueSchema = new mongoose.Schema({
         required: [true, 'must provide an auth']
     },
     assigned_to:{
-        type: String
+        type: String,
+        default: ""
     },
     open:{
         type: Boolean,
         default: true
     },
     status_text:{
-        type: String
+        type: String,
+        default: ""
     }
 })
 
