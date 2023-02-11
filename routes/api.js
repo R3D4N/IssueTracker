@@ -6,24 +6,24 @@ module.exports = function (app) {
 
     .get(function (req, res) {
       let project = req.params.project;
-      let {open, assigned_to} = req.query;
+      let { open, assigned_to } = req.query;
       let query = Project.findOne({ name: project }).populate('issueIDs')
-      if(open){
-        query = Project.findOne({ name: project }).populate({ 
+      if (open) {
+        query = Project.findOne({ name: project }).populate({
           path: 'issueIDs',
-          match: {open}
+          match: { open }
         })
       }
-      if(assigned_to){
-        query = Project.findOne({ name: project }).populate({ 
+      if (assigned_to) {
+        query = Project.findOne({ name: project }).populate({
           path: 'issueIDs',
-          match: {assigned_to}
+          match: { assigned_to }
         })
       }
-      if(open && assigned_to){
-        query = Project.findOne({ name: project }).populate({ 
+      if (open && assigned_to) {
+        query = Project.findOne({ name: project }).populate({
           path: 'issueIDs',
-          match: {open, assigned_to}
+          match: { open, assigned_to }
         })
       }
       query.exec((err, projectData) => {
@@ -77,8 +77,8 @@ module.exports = function (app) {
     .put(function (req, res) {
       let project = req.params.project;
       let data = req.body
-      if (!data._id) return res.send({error: 'missing _id'})
-      if (Object.keys(data).length <2) return res.send({ error: 'no update field(s) sent', '_id': data._id })
+      if (!data._id) return res.send({ error: 'missing _id' })
+      if (Object.keys(data).length < 2) return res.send({ error: 'no update field(s) sent', '_id': data._id })
       Project.findOne({ name: project }, (err, dataProject) => {
         if (err) {
           console.log(err);
@@ -86,12 +86,14 @@ module.exports = function (app) {
           if (!dataProject) {
             res.send({ msj: 'project name not found' })
           } else {
-            Issue.findOneAndUpdate({ _id: data._id }, { open: data.open }, (err, issueData) => {
+            Issue.findOneAndUpdate({ _id: data._id }, data, (err, issueData) => {
               if (err) {
                 return res.send({ error: 'could not update', '_id': data._id })
-              } else {
-                res.send({result: 'successfully updated', _id: issueData._id})
               }
+              if (!issueData) {
+                return res.send({ error: 'could not update', '_id': data._id })
+              }
+              res.send({ result: 'successfully updated', _id: issueData._id })
             })
           }
         }
@@ -101,6 +103,7 @@ module.exports = function (app) {
     .delete(function (req, res) {
       let project = req.params.project;
       let data = req.body
+      if (!data._id) return res.send({ error: 'missing _id' })
       Project.findOne({ name: project }, (err, dataProject) => {
         if (err) {
           console.log(err);
@@ -108,12 +111,18 @@ module.exports = function (app) {
           if (!dataProject) {
             res.send({ msj: 'project name not found' })
           } else {
-            Issue.deleteOne({ _id: data._id }, (err, issueData) => {
+            Issue.deleteOne({ _id: data._id }, (err) => {
               if (err) {
-                console.log(err);
-              } else {
-                res.send(issueData)
+                return res.send({ error: 'could not delete', '_id': data._id })
               }
+              let index = dataProject.issueIDs.indexOf(data._id)
+              if(index > -1){
+                dataProject.issueIDs.splice(index, 1)
+              }
+              dataProject.save((err, result)=>{
+                if(err) console.log(err);
+              })
+              res.send({ result: 'successfully deleted', '_id': data._id })
             })
           }
         }

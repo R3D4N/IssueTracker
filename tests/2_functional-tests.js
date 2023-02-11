@@ -88,27 +88,29 @@ suite('Functional Tests', function() {
         .request(server)
         .put('/api/issues/test')
         .send({
-            '_id': '63e5eae0901336f1631a512f',
+            '_id': '63e7532bdae673113d1e102e',
             'open': true
         })
         .end(function(err, res){
-            assert.strictEqual(res.text, '{"result":"successfully updated","_id":"63e5eae0901336f1631a512f"}')
+            assert.strictEqual(res.text, '{"result":"successfully updated","_id":"63e7532bdae673113d1e102e"}')
             done()
         })
-  })/*
+  })
   // #8 todo
   test('Put request update multiple fields', function(done){
     chai
         .request(server)
         .put('/api/issues/test')
         .send({
-            '_id': '63e5eae0901336f1631a512f',
-            'open': true
+            '_id': '63e74c05ea46608cc15b3012',
+            'open': true,
+            'status_text': 'other test'
         })
         .end(function(err, res){
-            assert.strictEqual(res.text, '{"result":"successfully updated", "_id":"63e5eae0901336f1631a512f"}', 'Put with all data')
+            assert.strictEqual(res.text, '{"result":"successfully updated","_id":"63e74c05ea46608cc15b3012"}', 'Put with all data')
+            done()
         })
-  })*/
+  })
   // #9
   test('Put request with missing _id', function(done){
     chai
@@ -128,10 +130,10 @@ suite('Functional Tests', function() {
         .request(server)
         .put('/api/issues/test')
         .send({
-            '_id': '63e5eae0901336f1631a512f'
+            '_id': '63e7532bdae673113d1e102e'
         })
         .end(function(err, res){
-            assert.strictEqual(res.text, '{"error":"no update field(s) sent","_id":"63e5eae0901336f1631a512f"}', 'Put without field to update')
+            assert.strictEqual(res.text, '{"error":"no update field(s) sent","_id":"63e7532bdae673113d1e102e"}', 'Put without field to update')
             done()
         })
   })
@@ -146,6 +148,43 @@ suite('Functional Tests', function() {
         })
         .end(function(err, res){
             assert.strictEqual(res.text, '{"error":"could not update","_id":"63e5eaeff01336f1631a512f"}', 'Put with wrong _id')
+            done()
+        })
+  })
+  // #12
+  test('Delete an issue', function(done){
+    chai
+        .request(server)
+        .delete('/api/issues/test')
+        .send({
+            '_id': '63e74c05ea46608cc15b3012'
+        })
+        .end(function(err, res){
+            assert.strictEqual(res.text, '{"result":"successfully deleted","_id":"63e74c05ea46608cc15b3012"}')
+            done()
+        })
+  })
+  // #13
+  test('Delete an invalid issue', function(done){
+    chai
+        .request(server)
+        .delete('/api/issues/test')
+        .send({
+            '_id': '63e5eae0901ff6f1631a5'
+        })
+        .end(function(err, res){
+            assert.strictEqual(res.text, '{"error":"could not delete","_id":"63e5eae0901ff6f1631a5"}')
+            done()
+        })
+  })
+  // #14
+  test('Delete without _id', function(done){
+    chai
+        .request(server)
+        .delete('/api/issues/test')
+        .send({})
+        .end(function(err, res){
+            assert.strictEqual(res.text, '{"error":"missing _id"}')
             done()
         })
   })
