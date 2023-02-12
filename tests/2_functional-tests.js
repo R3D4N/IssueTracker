@@ -58,7 +58,7 @@ suite('Functional Tests', function() {
         .request(server)
         .get('/api/issues/test')
         .end(function(err, res){
-            assert.isNotNull(res.text, 'Get all issues data')
+            assert.isArray(res.body, 'Get all issues data')
             done()
         })
   })
@@ -66,17 +66,19 @@ suite('Functional Tests', function() {
   test('Get request with one filter', function(done){
     chai
         .request(server)
-        .get('/api/issues/test?open=false')
+        .get('/api/issues/test')
+        .query({open: 'true'})
         .end(function(err, res){
             assert.isNotNull(res.text, 'Get issues with one filter')
             done()
         })
   })
   // #6
-  test('Get request with one filter', function(done){
+  test('Get request with multiple filters', function(done){
     chai
         .request(server)
-        .get('/api/issues/test?open=true&assigned_to=camila')
+        .get('/api/issues/test')
+        .query({open: 'true'},{assigned_to: 'sandra'})
         .end(function(err, res){
             assert.isNotNull(res.text, 'Get issues with multiple filters')
             done()
@@ -96,18 +98,18 @@ suite('Functional Tests', function() {
             done()
         })
   })
-  // #8 todo
+  // #8
   test('Put request update multiple fields', function(done){
     chai
         .request(server)
         .put('/api/issues/test')
         .send({
-            '_id': '63e74c05ea46608cc15b3012',
+            '_id': '63e7532bdae673113d1e102e',
             'open': true,
             'status_text': 'other test'
         })
         .end(function(err, res){
-            assert.strictEqual(res.text, '{"result":"successfully updated","_id":"63e74c05ea46608cc15b3012"}', 'Put with all data')
+            assert.strictEqual(res.text, '{"result":"successfully updated","_id":"63e7532bdae673113d1e102e"}', 'Put with all data')
             done()
         })
   })
@@ -157,10 +159,10 @@ suite('Functional Tests', function() {
         .request(server)
         .delete('/api/issues/test')
         .send({
-            '_id': '63e74c05ea46608cc15b3012'
+            '_id': '63e75b624411d32b4349d252'
         })
         .end(function(err, res){
-            assert.strictEqual(res.text, '{"result":"successfully deleted","_id":"63e74c05ea46608cc15b3012"}')
+            assert.strictEqual(res.text, '{"result":"successfully deleted","_id":"63e75b624411d32b4349d252"}')
             done()
         })
   })
